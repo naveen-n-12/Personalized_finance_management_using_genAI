@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personalized Finance Management</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1, h2 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input[type="file"], select {
+            margin-bottom: 10px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+         select[multiple] {
+            height: auto;
+         }
+        button {
+            background-color: #007BFF;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #results {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        #summary {
+            list-style-type: none;
+            padding: 0;
+        }
+        #summary li {
+             margin-bottom: 5px;
+             padding: 8px;
+             background-color: #f9f9f9;
+             border-radius: 3px;
+        }
+        #response-text-container {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+        }
+         #response-text {
+             font-family: monospace; /* Monospace font for better readability of text */
+        }
+    #chart-container {
+         margin-top: 20px;
+         display: flex;
+          flex-wrap: wrap;
+        justify-content: space-around;
+
+        }
+     #chart-container img {
+         width: 45%; /* Adjust as needed */
+         margin: 10px;
+         border: 1px solid #ddd;
+     }
+
+    </style>
+</head>
+<body>
+    <h1>Personalized Finance Management</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <label for="file">Upload Bank Statements (PDF):</label>
+        <input type="file" id="file" name="file" multiple required>
+        <br>
+        <label for="custom_categories">Custom Categories (e.g., groceries, rent, housing):</label>
+        <select id="custom_categories" name="custom_categories" multiple>
+            <option value="Food">Food</option>
+            <option value="Clothes">Clothes</option>
+            <option value="Housing">Housing</option>
+            <option value="Rent">Rent</option>
+            <option value="Transportation">Transportation</option>
+            <option value="Utilities">Utilities</option>
+            <option value="Entertainment">Entertainment</option>
+            <option value="Other">Other</option>
+             <!-- Add more options as required -->
+        </select>
+        <br>
+        <button type="submit">Upload</button>
+    </form>
+    <div id="results">
+        <h2>Spending Summary</h2>
+        <ul id="summary"></ul>
+    </div>
+    <div id="response-text-container">
+        <h2>Gemini API Response</h2>
+        <pre id="response-text"></pre>
+    </div>
+     <div id="chart-container">
+    </div>
+    <script>
+        const form = document.getElementById("uploadForm");
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            const formData = new FormData(form);
+            const response = await fetch("/upload", {
+                method: "POST",
+                body: formData
+            });
+            
+            if (!response.ok) {
+                console.error('Upload failed', response.status, response.statusText);
+                alert(`Upload failed with status ${response.status}: ${response.statusText}`);
+                return;
+            }
+
+            const data = await response.json();
+            if (data && data.spending_summary) {
+                const summary = document.getElementById("summary");
+                summary.innerHTML = "";
+                 if (data.spending_summary && Array.isArray(data.spending_summary) ) {
+                   data.spending_summary.forEach(item => {
+                        const li = document.createElement("li");
+                        li.textContent = `${item.Category}: $${item.Amount}`;
+                        summary.appendChild(li);
+                    });
+                  } else {
+                    const li = document.createElement("li");
+                    li.textContent = "No spending summary available";
+                    summary.appendChild(li);
+                    }
+
+
+            } else {
+                console.error('Invalid response format:', data);
+                alert('Invalid response format from server');
+            }
+
+            const responseTextContainer = document.getElementById("response-text");
+            responseTextContainer.textContent = data.response || "No response from Gemini API.";
+
+             const chartContainer = document.getElementById("chart-container");
+            chartContainer.innerHTML = "";
+              if(data && data.image_urls && Array.isArray(data.image_urls) ){
+                  data.image_urls.forEach(url =>{
+                    const img = document.createElement("img");
+                    img.src = url;
+                    chartContainer.appendChild(img);
+                  })
+              }
+         });
+    </script>
+</body>
+</html>
