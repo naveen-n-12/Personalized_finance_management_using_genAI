@@ -83,7 +83,7 @@ storage_client = storage.Client()
 Step 3: Upload Chart to Cloud Storage
 Function to upload the generated charts to Google Cloud Storage.
 def upload_to_cloud_storage(file, mime_type='image/png'):
-    bucket_name = "bank_transaction_data"  # Replace with your bucket name
+    bucket_name = "<bucketname>"  # Replace with your bucket name
     blob_name = f"{uuid.uuid4()}.png"
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(blob_name)
