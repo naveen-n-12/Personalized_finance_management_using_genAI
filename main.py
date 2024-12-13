@@ -17,10 +17,10 @@ app = Flask(__name__)
 storage_client = storage.Client()
 
 # Configure Gemini API
-genai.configure(api_key="AIzaSyAZiHrGWqHLR_WuV6ep6W4G_vjni9QJhuM")  # Replace with your actual API key
+genai.configure(api_key="<API Key>")  # Replace with your actual API key
 
 def upload_to_cloud_storage(file, mime_type='image/png'):
-    bucket_name = "bank_transaction_data"  # Replace with your bucket name
+    bucket_name = "<bucket name>"  # Replace with your bucket name
     blob_name = f"{uuid.uuid4()}.png"
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(blob_name)
